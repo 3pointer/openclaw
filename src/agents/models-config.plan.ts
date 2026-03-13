@@ -30,14 +30,16 @@ async function resolveProvidersForModelsJson(params: {
   cfg: OpenClawConfig;
   agentDir: string;
   env: NodeJS.ProcessEnv;
+  includePluginDiscovery?: boolean;
 }): Promise<Record<string, ProviderConfig>> {
-  const { cfg, agentDir, env } = params;
+  const { cfg, agentDir, env, includePluginDiscovery } = params;
   const explicitProviders = cfg.models?.providers ?? {};
   const implicitProviders = await resolveImplicitProviders({
     agentDir,
     config: cfg,
     env,
     explicitProviders,
+    includePluginDiscovery,
   });
   return mergeProviders({
     implicit: implicitProviders,
@@ -92,9 +94,15 @@ export async function planOpenClawModelsJson(params: {
   env: NodeJS.ProcessEnv;
   existingRaw: string;
   existingParsed: unknown;
+  includePluginDiscovery?: boolean;
 }): Promise<ModelsJsonPlan> {
-  const { cfg, agentDir, env } = params;
-  const providers = await resolveProvidersForModelsJson({ cfg, agentDir, env });
+  const { cfg, agentDir, env, includePluginDiscovery } = params;
+  const providers = await resolveProvidersForModelsJson({
+    cfg,
+    agentDir,
+    env,
+    includePluginDiscovery,
+  });
 
   if (Object.keys(providers).length === 0) {
     return { action: "skip" };

@@ -591,6 +591,7 @@ type ImplicitProviderParams = {
   env?: NodeJS.ProcessEnv;
   workspaceDir?: string;
   explicitProviders?: Record<string, ProviderConfig> | null;
+  includePluginDiscovery?: boolean;
 };
 
 type ProviderApiKeyResolver = (provider: string) => {
@@ -835,6 +836,7 @@ export async function resolveImplicitProviders(
 ): Promise<ModelsConfig["providers"]> {
   const providers: Record<string, ProviderConfig> = {};
   const env = params.env ?? process.env;
+  const includePluginDiscovery = params.includePluginDiscovery !== false;
   const authStore = ensureAuthProfileStore(params.agentDir, {
     allowKeychainPrompt: false,
   });
@@ -864,17 +866,25 @@ export async function resolveImplicitProviders(
   for (const loader of SIMPLE_IMPLICIT_PROVIDER_LOADERS) {
     mergeImplicitProviderSet(providers, await loader(context));
   }
-  mergeImplicitProviderSet(providers, await resolvePluginImplicitProviders(context, "simple"));
+  if (includePluginDiscovery) {
+    mergeImplicitProviderSet(providers, await resolvePluginImplicitProviders(context, "simple"));
+  }
   for (const loader of PROFILE_IMPLICIT_PROVIDER_LOADERS) {
     mergeImplicitProviderSet(providers, await loader(context));
   }
-  mergeImplicitProviderSet(providers, await resolvePluginImplicitProviders(context, "profile"));
+  if (includePluginDiscovery) {
+    mergeImplicitProviderSet(providers, await resolvePluginImplicitProviders(context, "profile"));
+  }
   for (const loader of PAIRED_IMPLICIT_PROVIDER_LOADERS) {
     mergeImplicitProviderSet(providers, await loader(context));
   }
-  mergeImplicitProviderSet(providers, await resolvePluginImplicitProviders(context, "paired"));
+  if (includePluginDiscovery) {
+    mergeImplicitProviderSet(providers, await resolvePluginImplicitProviders(context, "paired"));
+  }
   mergeImplicitProviderSet(providers, await resolveCloudflareAiGatewayImplicitProvider(context));
-  mergeImplicitProviderSet(providers, await resolvePluginImplicitProviders(context, "late"));
+  if (includePluginDiscovery) {
+    mergeImplicitProviderSet(providers, await resolvePluginImplicitProviders(context, "late"));
+  }
 
   if (!providers["github-copilot"]) {
     const implicitCopilot = await resolveImplicitCopilotProvider({

@@ -91,6 +91,9 @@ async function withModelsJsonWriteLock<T>(targetPath: string, run: () => Promise
 export async function ensureOpenClawModelsJson(
   config?: OpenClawConfig,
   agentDirOverride?: string,
+  options?: {
+    includePluginDiscovery?: boolean;
+  },
 ): Promise<{ agentDir: string; wrote: boolean }> {
   const resolved = resolveModelsConfigInput(config);
   const cfg = resolved.config;
@@ -109,6 +112,7 @@ export async function ensureOpenClawModelsJson(
       env,
       existingRaw: existingModelsFile.raw,
       existingParsed: existingModelsFile.parsed,
+      includePluginDiscovery: options?.includePluginDiscovery,
     });
 
     if (plan.action === "skip") {
