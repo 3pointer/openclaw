@@ -1,11 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+const ensureOpenClawModelsJsonMock = vi.fn(async () => {});
+
 function mockContextModuleDeps(loadConfigImpl: () => unknown) {
   vi.doMock("../config/config.js", () => ({
     loadConfig: loadConfigImpl,
   }));
   vi.doMock("./models-config.js", () => ({
-    ensureOpenClawModelsJson: vi.fn(async () => {}),
+    ensureOpenClawModelsJson: ensureOpenClawModelsJsonMock,
   }));
   vi.doMock("./agent-paths.js", () => ({
     resolveOpenClawAgentDir: () => "/tmp/openclaw-agent",
@@ -27,7 +29,7 @@ function mockDiscoveryDeps(
     loadConfig: () => ({ models: configModels ? { providers: configModels } : {} }),
   }));
   vi.doMock("./models-config.js", () => ({
-    ensureOpenClawModelsJson: vi.fn(async () => {}),
+    ensureOpenClawModelsJson: ensureOpenClawModelsJsonMock,
   }));
   vi.doMock("./agent-paths.js", () => ({
     resolveOpenClawAgentDir: () => "/tmp/openclaw-agent",
@@ -41,6 +43,8 @@ function mockDiscoveryDeps(
 describe("lookupContextTokens", () => {
   beforeEach(() => {
     vi.resetModules();
+    ensureOpenClawModelsJsonMock.mockReset();
+    ensureOpenClawModelsJsonMock.mockResolvedValue(undefined);
   });
 
   it("returns configured model context window on first lookup", async () => {
@@ -56,6 +60,28 @@ describe("lookupContextTokens", () => {
 
     const { lookupContextTokens } = await import("./context.js");
     expect(lookupContextTokens("openrouter/claude-sonnet")).toBe(321_000);
+  });
+
+  it("skips plugin provider discovery during eager startup warmup", async () => {
+    mockContextModuleDeps(() => ({
+      models: {
+        providers: {
+          openrouter: {
+            models: [{ id: "openrouter/claude-sonnet", contextWindow: 321_000 }],
+          },
+        },
+      },
+    }));
+
+    await import("./context.js");
+
+    expect(ensureOpenClawModelsJsonMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        models: expect.any(Object),
+      }),
+      undefined,
+      { includePluginDiscovery: false },
+    );
   });
 
   it("does not skip eager warmup when --profile is followed by -- terminator", async () => {

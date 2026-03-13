@@ -151,7 +151,11 @@ function ensureContextWindowCacheLoaded(): Promise<void> {
 
   loadPromise = (async () => {
     try {
-      await ensureOpenClawModelsJson(cfg);
+      // Eager startup warmup should not fully activate provider plugins just to
+      // prime models.json for context-window lookups.
+      await ensureOpenClawModelsJson(cfg, undefined, {
+        includePluginDiscovery: false,
+      });
     } catch {
       // Continue with best-effort discovery/overrides.
     }
