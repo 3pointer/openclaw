@@ -808,10 +808,6 @@ async function resolvePluginImplicitProviders(
   if (ctx.config?.plugins?.autoDiscover === false) {
     return undefined;
   }
-  const enabled = ctx.env.OPENCLAW_ENABLE_PLUGIN_PROVIDER_DISCOVERY?.trim();
-  if (!enabled || enabled === "0" || enabled.toLowerCase() === "false") {
-    return undefined;
-  }
   const providers = resolvePluginDiscoveryProviders({
     config: ctx.config,
     workspaceDir: ctx.workspaceDir,
