@@ -24,6 +24,8 @@ export type PluginInstallRecord = InstallRecordBase;
 export type PluginsConfig = {
   /** Enable or disable plugin loading. */
   enabled?: boolean;
+  /** Control automatic provider plugin discovery and default self-hosted provider auto-enablement. */
+  autoDiscover?: boolean;
   /** Optional plugin allowlist (plugin ids). */
   allow?: string[];
   /** Optional plugin denylist (plugin ids). */

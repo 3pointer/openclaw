@@ -803,6 +803,11 @@ async function resolvePluginImplicitProviders(
   ctx: ImplicitProviderContext,
   order: import("../plugins/types.js").ProviderDiscoveryOrder,
 ): Promise<Record<string, ProviderConfig> | undefined> {
+  // Keep plugin-backed provider discovery behind an explicit opt-in until
+  // cold-start memory behavior is better understood.
+  if (ctx.config?.plugins?.autoDiscover === false) {
+    return undefined;
+  }
   const providers = resolvePluginDiscoveryProviders({
     config: ctx.config,
     workspaceDir: ctx.workspaceDir,

@@ -5,6 +5,7 @@ import { defaultSlotIdForKey } from "./slots.js";
 
 export type NormalizedPluginsConfig = {
   enabled: boolean;
+  autoDiscover: boolean;
   allow: string[];
   deny: string[];
   loadPaths: string[];
@@ -31,6 +32,8 @@ export const BUNDLED_ENABLED_BY_DEFAULT = new Set<string>([
   "talk-voice",
   "vllm",
 ]);
+
+const AUTO_DISCOVER_PROVIDER_PLUGIN_IDS = new Set(["ollama", "sglang", "vllm"]);
 
 const normalizeList = (value: unknown): string[] => {
   if (!Array.isArray(value)) {
@@ -96,6 +99,7 @@ export const normalizePluginsConfig = (
   const memorySlot = normalizeSlotValue(config?.slots?.memory);
   return {
     enabled: config?.enabled !== false,
+    autoDiscover: config?.autoDiscover !== false,
     allow: normalizeList(config?.allow),
     deny: normalizeList(config?.deny),
     loadPaths: normalizeList(config?.load?.paths),
@@ -117,6 +121,9 @@ const hasExplicitPluginConfig = (plugins?: OpenClawConfig["plugins"]) => {
     return false;
   }
   if (typeof plugins.enabled === "boolean") {
+    return true;
+  }
+  if (typeof plugins.autoDiscover === "boolean") {
     return true;
   }
   if (Array.isArray(plugins.allow) && plugins.allow.length > 0) {
@@ -216,6 +223,9 @@ export function resolveEnableState(
   }
   if (entry?.enabled === true) {
     return { enabled: true };
+  }
+  if (origin === "bundled" && !config.autoDiscover && AUTO_DISCOVER_PROVIDER_PLUGIN_IDS.has(id)) {
+    return { enabled: false, reason: "provider auto-discovery disabled" };
   }
   if (origin === "bundled" && BUNDLED_ENABLED_BY_DEFAULT.has(id)) {
     return { enabled: true };

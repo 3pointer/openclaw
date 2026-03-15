@@ -77,6 +77,18 @@ describe("normalizePluginsConfig", () => {
     });
     expect(result.entries["voice-call"]?.hooks).toBeUndefined();
   });
+
+  it("defaults autoDiscover to true", () => {
+    const result = normalizePluginsConfig({});
+    expect(result.autoDiscover).toBe(true);
+  });
+
+  it("respects explicit autoDiscover=false", () => {
+    const result = normalizePluginsConfig({
+      autoDiscover: false,
+    });
+    expect(result.autoDiscover).toBe(false);
+  });
 });
 
 describe("resolveEffectiveEnableState", () => {
@@ -192,5 +204,35 @@ describe("resolveEnableState", () => {
       enabled: false,
       reason: "workspace plugin (disabled by default)",
     });
+  });
+
+  it("disables bundled provider plugins when autoDiscover is false", () => {
+    const state = resolveEnableState(
+      "ollama",
+      "bundled",
+      normalizePluginsConfig({
+        autoDiscover: false,
+      }),
+    );
+    expect(state).toEqual({
+      enabled: false,
+      reason: "provider auto-discovery disabled",
+    });
+  });
+
+  it("keeps explicit plugin entry enable authoritative when autoDiscover is false", () => {
+    const state = resolveEnableState(
+      "ollama",
+      "bundled",
+      normalizePluginsConfig({
+        autoDiscover: false,
+        entries: {
+          ollama: {
+            enabled: true,
+          },
+        },
+      }),
+    );
+    expect(state).toEqual({ enabled: true });
   });
 });
