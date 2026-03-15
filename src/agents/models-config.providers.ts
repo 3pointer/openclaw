@@ -805,6 +805,9 @@ async function resolvePluginImplicitProviders(
 ): Promise<Record<string, ProviderConfig> | undefined> {
   // Keep plugin-backed provider discovery behind an explicit opt-in until
   // cold-start memory behavior is better understood.
+  if (ctx.config?.plugins?.autoDiscover === false) {
+    return undefined;
+  }
   const enabled = ctx.env.OPENCLAW_ENABLE_PLUGIN_PROVIDER_DISCOVERY?.trim();
   if (!enabled || enabled === "0" || enabled.toLowerCase() === "false") {
     return undefined;

@@ -951,6 +951,8 @@ export const FIELD_HELP: Record<string, string> = {
     "Plugin system controls for enabling extensions, constraining load scope, configuring entries, and tracking installs. Keep plugin policy explicit and least-privilege in production environments.",
   "plugins.enabled":
     "Enable or disable plugin/extension loading globally during startup and config reload (default: true). Keep enabled only when extension capabilities are required by your deployment.",
+  "plugins.autoDiscover":
+    "Control automatic provider plugin discovery and bundled self-hosted provider auto-enablement during cold startup (default: true). Set false on constrained hosts to avoid loading bundled provider plugins unless they are explicitly enabled.",
   "plugins.allow":
     "Optional allowlist of plugin IDs; when set, only listed plugins are eligible to load. Use this to enforce approved extension inventories in controlled environments.",
   "plugins.deny":
