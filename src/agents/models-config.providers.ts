@@ -806,10 +806,6 @@ async function resolvePluginImplicitProviders(
   // Keep plugin-backed provider discovery behind an explicit opt-in until
   // cold-start memory behavior is better understood.
   const enabled = ctx.env.OPENCLAW_ENABLE_PLUGIN_PROVIDER_DISCOVERY?.trim();
-  const disabled = ctx.env.OPENCLAW_DISABLE_PLUGIN_PROVIDER_DISCOVERY?.trim();
-  if (disabled && disabled !== "0" && disabled.toLowerCase() !== "false") {
-    return undefined;
-  }
   if (!enabled || enabled === "0" || enabled.toLowerCase() === "false") {
     return undefined;
   }

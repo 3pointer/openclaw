@@ -8,11 +8,9 @@ describe("plugin-backed implicit provider discovery", () => {
   it("stays off by default without affecting non-plugin implicit providers", async () => {
     const envSnapshot = captureEnv([
       "MOONSHOT_API_KEY",
-      "OPENCLAW_DISABLE_PLUGIN_PROVIDER_DISCOVERY",
       "OPENCLAW_ENABLE_PLUGIN_PROVIDER_DISCOVERY",
     ]);
     process.env.MOONSHOT_API_KEY = "sk-test";
-    delete process.env.OPENCLAW_DISABLE_PLUGIN_PROVIDER_DISCOVERY;
     delete process.env.OPENCLAW_ENABLE_PLUGIN_PROVIDER_DISCOVERY;
 
     vi.resetModules();
@@ -47,12 +45,10 @@ describe("plugin-backed implicit provider discovery", () => {
   it("can be re-enabled explicitly", async () => {
     const envSnapshot = captureEnv([
       "MOONSHOT_API_KEY",
-      "OPENCLAW_DISABLE_PLUGIN_PROVIDER_DISCOVERY",
       "OPENCLAW_ENABLE_PLUGIN_PROVIDER_DISCOVERY",
     ]);
     process.env.MOONSHOT_API_KEY = "sk-test";
     process.env.OPENCLAW_ENABLE_PLUGIN_PROVIDER_DISCOVERY = "1";
-    delete process.env.OPENCLAW_DISABLE_PLUGIN_PROVIDER_DISCOVERY;
 
     vi.resetModules();
     vi.doMock("../plugins/provider-discovery.js", () => ({
